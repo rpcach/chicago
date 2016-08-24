@@ -9,6 +9,7 @@
 
 library(shiny)
 library(leaflet)
+library(ggplot2)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -22,15 +23,16 @@ shinyServer(function(input, output) {
   output$XY <- renderPlot({
     
     if(input$propType != "All") {
-      plot(fd[which(fd$Property.Type == input$propType),"X.Coordinate"], fd[which(fd$Property.Type == input$propType),"Y.Coordinate"],
-           xlim=c(1125000,1225000),ylim=c(1810000,1950000),
-           xlab = "X-Coordinate", ylab = "Y-Coordinate")
-    }  
+      fd2 <- fd[which(fd$Property.Type == input$propType),]
+      p <- ggplot() + geom_point(data=fd2, aes(x=X.Coordinate, y=Y.Coordinate,color=factor(fd2$Property.Type)))
+    }
     else {
-      plot(fd[,"X.Coordinate"],fd[,"Y.Coordinate"],xlim=c(1125000,1225000),ylim=c(1810000,1950000),
-           xlab = "X-Coordinate", ylab = "Y-Coordinate")
+      p <- ggplot() + geom_point(data=fd, aes(x=X.Coordinate, y=Y.Coordinate,color=factor(fd$Property.Type)))
     }
     
+    p <- p + xlim(1125000,1225000) + ylim(1810000,1950000) + theme(legend.position="top") + labs(color = "Property Type")
+    print(p)
+
   })
   
   output$Zip <- renderPlot({
